@@ -68,37 +68,41 @@ DEALINGS IN THE SOFTWARE.
 
 /* There is only support for the user mode page allocator on Windows at present */
 #if !defined(ENABLE_USERMODEPAGEALLOCATOR)
-#define ENABLE_USERMODEPAGEALLOCATOR 0
+ #define ENABLE_USERMODEPAGEALLOCATOR 0
 #endif
 
 /* If link time code generation is on, don't force or prevent inlining */
 #if defined(_MSC_VER) && defined(NEDMALLOC_DLL_EXPORTS)
-#define FORCEINLINE
-#define NOINLINE
+ #define FORCEINLINE
+ #define NOINLINE
 #endif
 
 #include "nedmalloc.h"
 #include <errno.h>
 #ifdef HAVE_VALGRIND
-#include <valgrind/valgrind.h>
-#include <valgrind/memcheck.h>
+ #include <valgrind/valgrind.h>
+ #include <valgrind/memcheck.h>
 #endif
+
 #if defined(WIN32)
  #include <malloc.h>
 #else
- #if defined(__cplusplus)
-extern "C"
- #else
-extern
- #endif
  #if defined(__linux__) || defined(__FreeBSD__)
-/* Sadly we can't include <malloc.h> as it causes a redefinition error */
-size_t malloc_usable_size(void *);
- #elif defined(__APPLE__)
-  #if TARGET_OS_IPHONE
-   #include <malloc/malloc.h>
+  #if defined(__cplusplus)
+   extern "C" {
   #else
-   #include <malloc.h>
+   extern
+  #endif
+  /* Sadly we can't include <malloc.h> as it causes a redefinition error */
+  size_t malloc_usable_size(void *);
+  #if defined(__cplusplus)
+   }
+  #endif
+ #elif defined(__APPLE__)
+  #ifdef TARGET_OS_IPHONE
+   #import <malloc/malloc.h>
+  #else
+   #import <malloc.h>
   #endif
  #else
   #error Do not know what to do here
