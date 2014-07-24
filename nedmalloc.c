@@ -654,7 +654,7 @@ NEDMALLOCNOALIASATTR size_t nedblksize(int *RESTRICT isforeign, void *RESTRICT m
 #ifdef DEBUG
 		else
 		{
-			int a=1; /* Set breakpoints here if needed */
+			__unused int a=1; /* Set breakpoints here if needed */
 		}
 #endif
 #endif
@@ -709,7 +709,7 @@ static timeCount GetTimestamp()
 #include <sys/time.h>
 
 typedef unsigned long long timeCount;
-static timeCount GetTimestamp()
+static __unused timeCount GetTimestamp()
 {
 	static timeCount baseCount;
 	timeCount ret;
@@ -768,7 +768,7 @@ typedef struct logentry_t
 	StackFrameType stack[NEDMALLOC_STACKBACKTRACEDEPTH];
 #endif
 } logentry;
-static const char *LogEntryTypeStrings[]={
+static const __unused char *LogEntryTypeStrings[]={
 	"LOGENTRY_MALLOC",
 	"LOGENTRY_REALLOC",
 	"LOGENTRY_FREE",
