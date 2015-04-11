@@ -1680,6 +1680,8 @@ static FORCEINLINE void* posix_direct_mmap(size_t size) {
   flags |= MAP_GROWSDOWN;
 #elif defined(MAP_STACK)
   flags |= MAP_STACK;
+#elif defined(MAP_SHARED)
+  flags |= MAP_SHARED;
 #else
 #warning Cannot figure out how to request memory from the top of the address space!
 #endif
