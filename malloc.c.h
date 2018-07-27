@@ -2048,6 +2048,15 @@ static FORCEINLINE int win32munmap(void *handle, void* ptr, size_t size) {
 
 #if USE_LOCKS == 1
 
+#ifdef __APPLE__
+#include <objc/runtime.h>
+#if TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_IOS
+#include <pthread.h>
+#undef USE_SPIN_LOCKS
+#define USE_SPIN_LOCKS 0
+#endif
+#endif
+
 #if USE_SPIN_LOCKS && SPIN_LOCKS_AVAILABLE
 #ifndef WIN32
 
