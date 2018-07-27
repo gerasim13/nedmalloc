@@ -638,7 +638,7 @@ NEDMALLOCNOALIASATTR size_t nedblksize(int *RESTRICT isforeign, void *RESTRICT m
 			size_t *_mem=(size_t *) mem-3;
 			if(_mem[0]==*(size_t *) "NEDMALOC")
 			{
-				mstate mspace=(mstate) _mem[1];
+				__unused mstate mspace=(mstate) _mem[1];
 				size_t size=_mem[2];
 				if(isforeign) *isforeign=0;
 				return size;
@@ -1351,7 +1351,7 @@ static NOINLINE threadcache *AllocCache(nedpool *RESTRICT p) THROWSPEC
 		1;
 #endif
 	for(end=1; p->m[end]; end++);
-	tc->mymspace=abs(tc->threadid) % end;
+	tc->mymspace=labs(tc->threadid) % end;
 #if ENABLE_LOGGING
 	{
 		mchunkptr cp;

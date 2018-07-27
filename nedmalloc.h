@@ -512,7 +512,7 @@ Useful for when you have nedmalloc in a DLL you're about to unload.
 If you call ANY nedmalloc functions after calling this you will
 get a fatal exception!
 */
-NEDMALLOCEXTSPEC void neddestroysyspool() THROWSPEC;
+NEDMALLOCEXTSPEC void neddestroysyspool(void) THROWSPEC;
 
 /*! \brief A nedpool type */
 struct nedpool_t;
@@ -538,7 +538,7 @@ NEDMALLOCEXTSPEC void neddestroypool(nedpool *p) THROWSPEC;
 Call nedfree() on the returned list when you are done. Returns zero if there is only the
 system pool in existence.
 */
-NEDMALLOCEXTSPEC nedpool **nedpoollist() THROWSPEC;
+NEDMALLOCEXTSPEC nedpool **nedpoollist(void) THROWSPEC;
 
 /*! \brief Sets a value to be associated with a pool.
 

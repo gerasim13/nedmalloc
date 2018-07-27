@@ -3073,7 +3073,7 @@ static size_t traverse_and_check(mstate m);
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 #define compute_tree_index(S, I)\
 {\
-  unsigned int X = S >> TREEBIN_SHIFT;\
+  unsigned int X = (unsigned int)S >> TREEBIN_SHIFT;\
   if (X == 0)\
     I = 0;\
   else if (X > 0xFFFF)\
