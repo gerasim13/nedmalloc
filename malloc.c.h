@@ -545,7 +545,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #endif
 #endif  /* WIN32 */
 
-#if defined(DARWIN) || defined(_DARWIN)
+#ifdef __APPLE__
 /* Mac OSX docs advise not to use sbrk; it seems better to use mmap */
 #ifndef HAVE_MORECORE
 #define HAVE_MORECORE 0
