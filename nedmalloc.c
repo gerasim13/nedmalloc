@@ -51,6 +51,7 @@ DEALINGS IN THE SOFTWARE.
 #endif
 #else
 #include <stdio.h>
+#include <stdatomic.h>
 #endif
 
 /*#define NEDMALLOC_DEBUG 1*/
@@ -301,8 +302,9 @@ static void *unsupported_operation(const char *opname) THROWSPEC
 static size_t mspacecounter=(size_t) 0xdeadbeef;
 #endif
 #ifndef ENABLE_FAST_HEAP_DETECTION
-static void *RESTRICT leastusedaddress;
-static size_t largestusedblock;
+typedef _Atomic(void *) atomic_ptr_t;
+static atomic_ptr_t leastusedaddress;
+static atomic_uint_fast64_t largestusedblock;
 #endif
 /* Used to redirect system allocator ops if needed */
 extern void *(*sysmalloc)(size_t);
@@ -363,8 +365,16 @@ static FORCEINLINE NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void *CallMalloc(void *
 	{
 		mchunkptr p=mem2chunk(ret);
 		size_t truesize=chunksize(p) - overhead_for(p);
-		if(!leastusedaddress || (void *)((mstate) mspace)->least_addr<leastusedaddress) leastusedaddress=(void *)((mstate) mspace)->least_addr;
-		if(!largestusedblock || truesize>largestusedblock) largestusedblock=(truesize+mparams.page_size) & ~(mparams.page_size-1);
+        register uint64_t _largestusedblock = atomic_load_explicit(&largestusedblock, memory_order_acquire);
+        register void *RESTRICT _leastusedaddress = atomic_load_explicit(&leastusedaddress, memory_order_acquire);
+		if(!_largestusedblock || (void *)((mstate) mspace)->least_addr<_leastusedaddress)
+        {
+            atomic_store_explicit(&leastusedaddress, (void *)((mstate) mspace)->least_addr, memory_order_release);
+        }
+		if(!_largestusedblock || truesize>_largestusedblock)
+        {
+            atomic_store_explicit(&largestusedblock, (truesize+mparams.page_size) & ~(mparams.page_size-1), memory_order_release);
+        }
 	}
 #endif
 #endif
@@ -584,8 +594,8 @@ static NEDMALLOCNOALIASATTR mstate nedblkmstate(void *RESTRICT mem) THROWSPEC
 			    FLAG_BITS = bit 0 is CINUSE (currently in use unless is mmap), bit 1 is PINUSE (previous block currently
 				            in use unless mmap), bit 2 is UNUSED and currently is always zero.
 			*/
-			register void *RESTRICT leastusedaddress_=leastusedaddress;		/* Cache these to avoid register reloading */
-			register size_t largestusedblock_=largestusedblock;
+			register void *RESTRICT leastusedaddress_=atomic_load_explicit(&leastusedaddress, memory_order_acquire); /* Cache these to avoid register reloading */
+			register size_t largestusedblock_=atomic_load_explicit(&largestusedblock, memory_order_acquire);
 			if(!is_aligned(mem)) return 0;		/* Would fail very rarely as all allocators return aligned blocks */
 			if(mem<leastusedaddress_) return 0;	/* Simple but effective */
 			{
